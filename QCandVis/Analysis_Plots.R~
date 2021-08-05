@@ -1,0 +1,241 @@
+source("..\\..\\Code\\Misc_Functions.R")
+options(java.parameters = "-Xmx15g")
+require(gridExtra)
+library(reshape2)
+library(xlsx)
+library(plyr)
+library(plotly)
+library(shiny)
+library(stringi)
+library(htmlwidgets)
+library(Hmisc)
+library(pROC)
+library(plotROC)
+options(scipen = 999)
+norm_name="Normalisation_NegOnly"
+
+#norm_name="Normalisation_NegOnly"
+#results_dir=paste0(".\\Results\\",norm_name,"\\Plots")
+
+data_dir=paste0("..\\..\\Data\\",norm_name)
+load(file="..\\..\\RDA\\screen_table.rda")
+
+
+#########################################################################################################3
+#cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+#http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/#a-colorblind-friendly-palette
+
+mycol=c("Ratio.positive"="skyblue1","Ratio.negative"="tomato","Ratio.atypical"="slategray","Ratio.small.bright"="yellow","Ratio.trash"="springgreen",
+        "Negative"="salmon","COVID-19"="deepskyblue","NA"="salmon",">2Weeks"="navy","<2Weeks"="deepskyblue",
+        "CTRL1"="green1","CTRL2"="violet","EMPTY"="cyan","F5_100"="gray50","F5_25"="gray50","F6_100"="gray50","F6_25"="gray50","F7_100"="gray50","F7_25"="gray50","F8_100"="gray50","F8_25"="gray50",
+        "NEG1"="firebrick","NEG2"="mediumorchid1","NEG3"="lightpink","POS1"="blue","POS2"="slateblue1",
+        "N"="#E69F00","M"="#999999","R"="#009E73","S"= "#56B4E9","IgA"="#0072B2","IgG"="#D55E00","IgM"="#CC79A7")
+
+#Dataset_A
+
+
+####
+###If the file names are too long, Windows wont be able to handle it
+file_names <- list.files(paste0(data_dir),pattern  = "*spec_sens_scores_", all.files = TRUE,full.names = TRUE, recursive = TRUE,ignore.case = TRUE, include.dirs = TRUE)
+ROC_table=do.call("rbind.fill",lapply(as.character(file_names),function(file_name)
+{
+  data_tbl= read.csv(file_name, header=TRUE, blank.lines.skip=TRUE,skip=0,sep=",",colClasses=NA,stringsAsFactors =FALSE)
+  ###Source name should give whether its results from DatasetA or Dataset_B
+  ##If there are changes in the directory structure then this number will change.
+  source_name=unname(split_give_nth_starting_front(file_name,"\\/",3))
+  
+  agab=unname(split_give_last_n(file_name,"\\/",1))
+  agab=remove_file_extension(agab)
+  ##Protein Name (M/N/R/S) dependent on the file structure. In case of errors use file names to split and take Protein name as well as Antibody name
+  #protein=split_give_last_n(agab,"-",1)
+  #protein=unname(substr(protein,1,1))
+  protein=unname(split_give_nth_starting_front(file_name,"\\/",2))
+  ab=split_give_last_n(agab,"-",1)
+  ab=split_give_nth_starting_front(ab,"_",2)
+  names(data_tbl)[names(data_tbl) == "specificity"] <- "specificity_original"
+  data_tbl$specificity= 1 - data_tbl$specificity_original
+  data_tbl$Protein=protein
+  data_tbl$Antibody=ab
+  data_tbl$AgAb=paste0(data_tbl$Protein,"_",data_tbl$Antibody)
+  data_tbl$Plate_set=agab
+  data_tbl$Source_Name=source_name
+  data_tbl=data_tbl[,c("specificity_original","sensitivity","specificity","Protein","Antibody","AgAb","Plate_set","Source_Name")]
+  data_tbl
+}))
+
+ROC_table=unique(ROC_table)
+for(sn in unique(sort(ROC_table$Source_Name)))
+{  
+  sn_table=ROC_table[ROC_table$Source_Name==sn,]
+for(ab in unique(sort(sn_table$Antibody)))
+{
+  ab_table=sn_table[sn_table$Antibody==ab,]
+  ab_table=ab_table[with(ab_table,order(specificity,sensitivity)),]
+  
+   p=ggplot(ab_table,aes(x=specificity,y=sensitivity,color=Protein))+
+     geom_abline(yintercept=1,xintercept=0,slope=1,intercept=0, colour = "black",size=0.5,linetype="dashed") +
+     geom_line(size = 1, alpha = 0.7)+
+     scale_color_manual(values = mycol)+
+     coord_fixed( ratio=1)+
+     theme_classic()+
+     labs(title= paste0("ROC curve ",ab), 
+          x = "False Positive Rate (1-Specificity)", 
+          y = "True Positive Rate (Sensitivity)")+
+   theme(
+     aspect.ratio=1,
+     legend.position = "bottom"
+     )
+  ggsave(paste0(sn,"_",ab,"_",norm_name,".tiff"),plot=p, width = 4, height = 4, dpi=600, compression = "lzw")
+  }
+}
+
+##############################
+###########
+###ROC Table filtered for R and S from Dataset_A and N from Dataset_B
+
+ROC_table_RS=ROC_table[ROC_table$Source=="results_elisa_Dataset_A" & ROC_table$Protein %in% c("R","S"),]
+ROC_table_N=ROC_table[ROC_table$Source=="results_elisa_Dataset_B" & ROC_table$Protein %in% c("N"),]
+ROC_table_results=rbind(ROC_table_RS,ROC_table_N)
+
+for(ab in unique(sort(ROC_table_results$Antibody)))
+{
+  ab_table=ROC_table_results[ROC_table_results$Antibody==ab,]
+  ab_table=ab_table[with(ab_table,order(specificity,sensitivity)),]
+  
+  p=ggplot(ab_table,aes(x=specificity,y=sensitivity,color=Protein))+
+    geom_abline(yintercept=1,xintercept=0,slope=1,intercept=0, colour = "black",size=0.5,linetype="dashed") +
+    geom_line(size = 1, alpha = 0.7)+
+    scale_color_manual(values = mycol)+
+    coord_fixed( ratio=1)+
+    theme_classic()+
+    labs(title= paste0("ROC curve ",ab), 
+         x = "False Positive Rate (1-Specificity)", 
+         y = "True Positive Rate (Sensitivity)")+
+    theme(
+      aspect.ratio=1,
+      legend.position = "bottom"
+    )
+  ggsave(paste0("ROC_",ab,"_",norm_name,".tiff"),plot=p, width = 4, height = 4, dpi=600, compression = "lzw")
+}
+
+##############################
+
+  
+
+##########Correlations
+file_names <- list.files(paste0(data_dir),pattern  = "*corr_", all.files = TRUE,full.names = T, recursive = TRUE,ignore.case = TRUE, include.dirs = TRUE)
+
+corr_table=data.frame(Antibody=character(),Protein=character(),Corr_Value=numeric(),SD_Corr_Value=numeric(),stringsAsFactors=FALSE)
+elisa_cor_table=do.call("rbind.fill",lapply(as.character(file_names),function(file_name)
+{
+  print(file_name)
+  data_tbl= read.csv(file_name, header=TRUE, blank.lines.skip=TRUE,skip=0,sep=",",colClasses=NA,stringsAsFactors =FALSE)
+  agab=unname(split_give_last_n_vect(file_name,"\\/",1))
+  agab=remove_file_extension(agab)
+  protein=split_give_last_n_vect(agab,"-",1)
+  protein=unname(substr(protein,1,1))
+  source_name=unname(split_give_nth_starting_front(file_name,"\\/",2))
+  
+  agab_col=colnames(data_tbl)[3]
+  ab=substring(agab_col,1,3)
+  data_tbl$Antibody=ab
+  data_tbl$Protein=protein
+  data_tbl$Source=source_name
+  #data_tbl=data_tbl[,c("Source","Sample.name","Sample","IgA.True","IgA.Pred","Antibody","Protein")] 
+  
+  colnames(data_tbl)=c("Sample.Name","Sample","ELISA","Pred","Antibody","Protein","Source")
+  
+  data_tbl=data_tbl[,c("Source","Sample.Name","Sample","ELISA","Pred","Antibody","Protein")]
+  
+  data_tbl
+}))
+
+elisa_cor_table$Sample.Code=paste0(elisa_cor_table$Sample.Name,"_",elisa_cor_table$Sample)
+
+
+elisa_RS=elisa_cor_table[elisa_cor_table$Source=="results_elisa_Dataset_A" & elisa_cor_table$Protein %in% c("R","S"),]
+elisa_N=elisa_cor_table[elisa_cor_table$Source=="results_elisa_Dataset_B" & elisa_cor_table$Protein %in% c("N"),]
+
+elisa_cor_results=rbind(elisa_RS,elisa_N)
+elisa_cor_results$Sample.Group=ifelse(grepl("^S2017",elisa_cor_results$Sample.Name),"Negative","COVID-19")
+
+    for(prot in unique(sort(elisa_cor_results$Protein)))
+    {
+      prot_table=elisa_cor_results[elisa_cor_results$Protein==prot,]
+      
+      neg_samples_prot=grep("S2017",unique(prot_table$Sample.Name),value=TRUE)
+      cov_samples_prot=grep("S2020",unique(prot_table$Sample.Name),value=TRUE)
+      cov_samples_code_prot=grep("S2020",unique(prot_table$Sample.Code),value=TRUE)
+      
+      for(ab in unique(sort(prot_table$Antibody)))
+      {
+        prot_ab_table=prot_table[prot_table$Antibody==ab,]
+      i <- 1
+      mylist <- c()
+      while (i<1000) {
+        neg_sample_random=unique(sample(neg_samples_prot,size=length(cov_samples_code_prot),replace=FALSE))
+        prot_ab_table_filtered=prot_ab_table[prot_ab_table$Sample.Name %in% c(cov_samples_prot,neg_sample_random),]
+        
+        cor_value=round(cor(prot_ab_table_filtered$ELISA, prot_ab_table_filtered$Pred, method = "spearman"),2)
+        mylist[[(length(mylist) + 1)]] <- cor_value
+        i <- i+1
+        }
+      mylist=unlist(mylist)
+      print(paste0(ab,"::",prot,"::",round(mean(mylist),2)))
+      corr_record=data.frame(Antibody=ab,Protein=prot,Corr_Value=round(mean(mylist),2),SD_Corr_Value=round(sd(mylist),2))
+      corr_table=rbind(corr_table,corr_record)
+    }
+  }  
+
+write.xlsx2(corr_table,paste0("Corr_Table_1000x_Average_",norm_name,".xlsx"),sheetName = "Corr_Table",append=FALSE)
+
+
+#########################
+###Correlation Plots
+#########################
+for(prot in unique(sort(elisa_cor_results$Protein)))
+{
+  prot_table=elisa_cor_results[elisa_cor_results$Protein==prot,]
+  
+  neg_samples_prot=grep("S2017",unique(prot_table$Sample.Name),value=TRUE)
+  cov_samples_prot=grep("S2020",unique(prot_table$Sample.Name),value=TRUE)
+  cov_samples_code_prot=grep("S2020",unique(prot_table$Sample.Code),value=TRUE)
+  neg_sample_random=unique(sample(neg_samples_prot,size=length(cov_samples_code_prot),replace=FALSE))
+    
+  for(ab in unique(sort(prot_table$Antibody)))
+  {
+    prot_ab_table=prot_table[prot_table$Antibody==ab,]
+    
+    prot_ab_table_filtered=prot_ab_table[prot_ab_table$Sample.Name %in% c(cov_samples_prot,neg_sample_random),]
+    
+      
+      p=ggplot(prot_ab_table_filtered,aes(x=ELISA,y=Pred,color=Sample.Group))+
+        geom_point(size =1, alpha = 0.7)+
+        scale_color_manual(values = mycol)+
+        #scale_x_continuous(label=unit_format(unit = "K"))+
+        theme_classic()+
+        labs(title= paste0("ELISA, Pred. Positive Ratio Correlation ",ab, "-",prot),
+           x = "Raw ELISA Values", 
+             y = paste0("Predicted Positive Ratio ",ab))+
+        theme(
+          aspect.ratio=1,
+          legend.position = "bottom",
+          panel.border = element_blank(),
+          panel.background = element_rect(fill = "white", colour = "grey50"),
+          strip.background = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          strip.placement = "outside",
+          panel.spacing = unit(0.001, "lines"),
+          plot.title = element_text(color="black", size=10, face="bold"),
+          plot.subtitle = element_text(color="black", size=9, face="bold"),
+          axis.title.y = element_text(color="black", size=8, face="bold"),
+          axis.title.x = element_text(color="black", size=8, face="bold"),
+          axis.text.x = element_text(size=7,angle = 0, vjust = 0.5, hjust=0.5),
+          axis.text.y = element_text(size=7,angle = 0, vjust = 0.5, hjust=0.5),
+          legend.title=element_text(margin=margin(r=0.1,unit="cm"),size=8),
+          legend.text=element_text(size=8))+
+      guides(colour = guide_legend(override.aes = list(size=2)))
+      ggsave(paste0(ab,"_",prot,"_",norm_name,".tiff"),plot=p, width = 4, height = 4, dpi=600, compression = "lzw")
+      }
+  }
