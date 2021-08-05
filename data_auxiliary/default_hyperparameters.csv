@@ -1,0 +1,13 @@
+﻿protein;antibody;ANN;SVM;RF
+N;IgA;"{'activation': 'logistic', 'alpha': 1.0, 'hidden_layer_sizes': (128, 64)}";"{'C': 1, 'gamma': 0.0001, 'kernel': 'rbf'}";"{'max_features': 'sqrt', 'n_estimators': 500}"
+N;IgG;"{'activation': 'logistic', 'alpha': 1.0, 'hidden_layer_sizes': 64}";"{'C': 10, 'gamma': 0.0001, 'kernel': 'rbf'}";"{'max_features': 'sqrt', 'n_estimators': 500}"
+N;IgM;"{'activation': 'logistic', 'alpha': 0.05, 'hidden_layer_sizes': 32}";"{'C': 100, 'gamma': 0.0001, 'kernel': 'rbf'}";"{'max_features': 'sqrt', 'n_estimators': 500}"
+S;IgA;"{'activation': 'logistic', 'alpha': 1.0, 'hidden_layer_sizes': 32}";"{'C': 50, 'gamma': 0.0001, 'kernel': 'rbf'}";"{'max_features': 'sqrt', 'n_estimators': 500}"
+S;IgG;"{'activation': 'logistic', 'alpha': 0.1, 'hidden_layer_sizes': (32, 32)}";"{'C': 1, 'gamma': 0.0005, 'kernel': 'rbf'}";"{'max_features': 'sqrt', 'n_estimators': 500}"
+S;IgM;"{'activation': 'logistic', 'alpha': 0.001, 'hidden_layer_sizes': 32}";"{'C': 10, 'gamma': 0.0001, 'kernel': 'rbf'}";"{'max_features': 'sqrt', 'n_estimators': 200}"
+R;IgA;"{'activation': 'logistic', 'alpha': 0.1, 'hidden_layer_sizes': 32}";"{'C': 100, 'gamma': 0.0001, 'kernel': 'rbf'}";"{'max_features': 'sqrt', 'n_estimators': 200}"
+R;IgG;"{'activation': 'logistic', 'alpha': 0.1, 'hidden_layer_sizes': 32}";"{'C': 100, 'gamma': 0.0001, 'kernel': 'rbf'}";"{'max_features': 'sqrt', 'n_estimators': 500}"
+R;IgM;"{'activation': 'logistic', 'alpha': 1.0, 'hidden_layer_sizes': (128, 64)}";"{'C': 1, 'gamma': 0.001, 'kernel': 'rbf'}";"{'max_features': 'sqrt', 'n_estimators': 50}"
+M;IgA;"{'activation': 'logistic', 'alpha': 1.0, 'hidden_layer_sizes': 32}";"{'C': 10, 'gamma': 0.0001, 'kernel': 'rbf'}";"{'max_features': 'sqrt', 'n_estimators': 300}"
+M;IgG;"{'activation': 'logistic', 'alpha': 0.05, 'hidden_layer_sizes': 128}";"{'C': 50, 'gamma': 0.0001, 'kernel': 'rbf'}";"{'max_features': 'sqrt', 'n_estimators': 50}"
+M;IgM;"{'activation': 'logistic', 'alpha': 1.0, 'hidden_layer_sizes': (32, 32)}";"{'C': 1, 'gamma': 0.001, 'kernel': 'rbf'}";"{'max_features': 'sqrt', 'n_estimators': 500}"

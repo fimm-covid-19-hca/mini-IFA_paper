@@ -1,0 +1,11 @@
+Content,Type,Dilution
+POS1_25,positive,25
+POS2_25,positive,25
+POS1_100,positive,100
+POS2_100,positive,100
+NEG1_25,negative,25
+NEG2_25,negative,25
+NEG3_25,negative,25
+NEG1_100,negative,100
+NEG2_100,negative,100
+NEG3_100,negative,100
