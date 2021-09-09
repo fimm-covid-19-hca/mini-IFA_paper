@@ -55,4 +55,4 @@ def check_sufficient_transfer(controls_pos_transferred, controls_neg_transferred
             print("Only {} of {} negative control wells were transferred -- too few.".format(controls_neg_transferred.Transferred.sum(), controls_neg_transferred.shape[0]))
             insufficient_controls = True
 
-    return not insufficient_controls
+    return not insufficient_controls     
