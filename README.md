@@ -1,6 +1,6 @@
 # mini-IFA_paper
 
-We provide, notebook.ipynb a self-contained Jupyter notebook script which comprises the full ML model training, prediction and evaluation pipeline presented in the manuscript. It allows for the reproduction of our findings, based on the configuration in the "Settings" cell. Reproducing all reported findings requires multiple runs of the notebook with different settings, but it is configured by default to reproduce our most significant findings as reported in the manuscript.
+We provide a self-contained Jupyter notebook script, notebook.ipynb, which comprises the full ML model training, prediction and evaluation pipeline presented in the manuscript. It allows for the reproduction of our findings, based on the configuration in the "Settings" cell. Reproducing all reported findings requires multiple runs of the notebook with different settings, but it is configured by default to reproduce our most significant findings as reported in the manuscript.
 
 The notebook utilizes various custom Python modules which are included in the root directory. It moreover makes use of metadata files and raw data, which are stored in the data_auxiliary and data_raw directories, respectively.
 
