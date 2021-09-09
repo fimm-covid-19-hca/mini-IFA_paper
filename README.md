@@ -1,5 +1,7 @@
 # mini-IFA_paper
 
+Supplementary code for paper Image-Based & Machine Learning-Guided Multiplexed Serology Test for SARS-CoV-2.
+
 We provide a self-contained Jupyter notebook script, notebook.ipynb, which comprises the full machine-learning (ML) model training, prediction and evaluation pipeline presented in the manuscript. It allows for the reproduction of our findings, based on the configuration in the "Settings" cell. Reproducing all reported findings requires multiple runs of the notebook with different settings, but it is configured by default to reproduce our most significant findings as reported in the manuscript.
 
 The notebook utilizes various custom Python modules which are included in the root directory. It moreover makes use of metadata files and raw data, which are stored in the data_auxiliary and data_raw directories, respectively.
@@ -8,7 +10,6 @@ The notebook utilizes various custom Python modules which are included in the ro
 
 The Python code has been implemented and tested on Ubuntu 18.04 Linux with Python 3.6.9. Our virtual development server features a 16 core AMD EPYC processor (2.0GHz) with 64GB RAM. The code should work with any operating system with Python 3.6.x or newer that has sufficient RAM to handle the image feature data in parallel training processes. We confirm that the code works with the following versions of the following Python packages:
 - joblib 0.14.1
-- jupyter 1.0.0
 - matplotlib 3.2.1
 - numpy 1.18.4
 - pandas 1.1.5
@@ -16,9 +17,9 @@ The Python code has been implemented and tested on Ubuntu 18.04 Linux with Pytho
 - seaborn 0.10.1
 
 The notebook has been tested on the following Jupyter components:
-- jupyter core 4.7.1
+- jupyter-core 4.7.1
 - jupyter-notebook 6.4.0
-- jupyter client   : 6.1.12
+- jupyter-client 6.1.12
 
 Based on a conservative estimate, one pass through the notebook takes about 60 minutes, given the hardware specifications and library versions as indicated above.
 
