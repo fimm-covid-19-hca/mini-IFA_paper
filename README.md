@@ -26,7 +26,7 @@ Based on a conservative estimate, one pass through the notebook takes about 60 m
 ## Datasets
 
 Single-cell extracted features used for model training and hyperparameter optimization, including expert annotations, are shared separately for each antigen (S/N/R/M_cv.zip files). In addition, single-cell features for model testing are also shared (S/N/R/M_test.zip files). The features are available in Zenodo: 
-[https://dx.doi.org/10.5281/zenodo.6352550](10.5281/zenodo.6352550)
+[10.5281/zenodo.6352550](https://dx.doi.org/10.5281/zenodo.6352550)
 
 ## Quality Control (QC) and Visualisation
 
