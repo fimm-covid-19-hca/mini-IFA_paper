@@ -23,6 +23,11 @@ The notebook has been tested on the following Jupyter components:
 
 Based on a conservative estimate, one pass through the notebook takes about 60 minutes, given the hardware specifications and library versions as indicated above.
 
+## Datasets
+
+Single-cell extracted features used for model training and hyperparameter optimization, including expert annotations, are shared separately for each antigen (S/N/R/M_cv.zip files). In addition, single-cell features for model testing are also shared (S/N/R/M_test.zip files). The features are available in Zenodo: 
+[https://zenodo.org/record/6352550](https://zenodo.org/record/6352550)
+
 ## Quality Control (QC) and Visualisation
 
 The QCandVis directory comprises the R scripts used to run the QC pipeline and to create all result figures as shown in the paper. Most figures can also be obtained directly from the Jupyter notebook, but with a slightly different optic. Follow the steps below to perform the QC and data visualisation:
